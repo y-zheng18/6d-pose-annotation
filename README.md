@@ -9,7 +9,7 @@ A naive tool for 6d-pose annotation on PyQt5 platform.
 * PyQt5
 * pptk
   
-## Shortcut
+## Hot keys for annotation
 
 key | description
 :-: | :-: 
