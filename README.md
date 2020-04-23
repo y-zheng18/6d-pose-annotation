@@ -19,8 +19,9 @@ S | Down
 D | Right
 P | Symmetric 
 Del | Delete Point cloud
-L | Next
-K | Pre
+E | Next
+Q | Pre
+R | Reset angle
 
 ## Dataset
 
