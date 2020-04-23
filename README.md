@@ -1,17 +1,15 @@
 # 6d-pose-annotation-tool
---------------------------
 
 A naive tool for 6d-pose annotation on PyQt5 platform.
 
 ![](pic/overview.png)
 
 ## Requirements
------------------------
+
 * PyQt5
 * pptk
   
-## Shortcut
----
+## Hot keys for annotation
 
 key | description
 :-: | :-: 
@@ -25,7 +23,7 @@ L | Next
 K | Pre
 
 ## Dataset
----
+
 Expected structure of 3d point cloud dataset:
 ```
 └─dataset
@@ -40,3 +38,8 @@ Expected structure of 3d point cloud dataset:
     └─scenek
 ```
 
+## Start annotation
+
+```
+python call_life0.py
+```
