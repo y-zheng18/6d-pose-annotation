@@ -43,7 +43,15 @@ class annatation_tool(QtWidgets.QMainWindow,Ui_annotation):
 
             self.lineEdit_loadroot.setText(self.loadroot)
             self.lineEdit_saveroot.setText(self.save_root)
-
+        self.ins_label = {'1': 'wall', '2': 'floor', '3': 'cabinet', '4': 'bed',
+                    '5': "chair", "6": "sofa", "7": "table", "8": "door", "9": "window",
+                    "10": "bookshelf", "11": "picture", "12": "counter", "13": "blinds", "14": "desk",
+                    "15": "shelves", "16": "curtain", "17": "dresser", "18": "pillow", "19": "mirror",
+                    "20":"floor mat", "21": "clothes", "22": "ceiling", "23": "books",
+                    "24": "refridgerator", "25": "television", "26": "paper", "27": "towel",
+                    "28": "shower curtain", "29": "box", "30": "white board", "31": "person",
+                    "32": "night stand", "33": "toilet", "35": "lamp", "37": "bag", "38": "ohter structure",
+                    "34": "sink", "36": "bathtub", "39": "other funiture", "40": "others prop"}
 
     def initUi(self):
         _translate = QtCore.QCoreApplication.translate
@@ -90,7 +98,9 @@ class annatation_tool(QtWidgets.QMainWindow,Ui_annotation):
         self.btn_back.setEnabled(False)
         self.checkBox_Sym.setEnabled(False)
         self.checkBox_del.setEnabled(False)
+        self.btn_reset.setEnabled(False)
 
+        self.label_label.setAlignment(QtCore.Qt.AlignCenter)
         self.tbtn_loadroot.clicked.connect(self.on_tbtn_load_clicked)
         self.tbtn_saveroot.clicked.connect(self.on_tbtn_save_clicked)
         self.btn_continue.clicked.connect(self.on_btn_start_clicked)
@@ -100,15 +110,18 @@ class annatation_tool(QtWidgets.QMainWindow,Ui_annotation):
         self.btn_s.clicked.connect(self.on_btn_down_clicked)
         self.btn_nxt.clicked.connect(self.on_btn_next_clicked)
         self.btn_back.clicked.connect(self.on_btn_pre_clicked)
+        self.btn_reset.clicked.connect(self.on_btn_reset_clicked)
         self.comboBox_rotate_degree.currentIndexChanged.connect(self.on_degree_changed)
+        self.checkBox_del.clicked.connect(self.on_btn_next_clicked)
         self.btn_d.setShortcut(_translate("annotation", "D"))
         self.btn_w.setShortcut(_translate("annotation", "W"))
         self.btn_s.setShortcut(_translate("annotation", "S"))
         self.btn_a.setShortcut(_translate("annotation", "A"))
-        self.btn_nxt.setShortcut(_translate("annotation", "L"))
-        self.btn_back.setShortcut(_translate("annotation", "K"))
+        self.btn_nxt.setShortcut(_translate("annotation", "E"))
+        self.btn_back.setShortcut(_translate("annotation", "Q"))
         self.checkBox_del.setShortcut(_translate("annotation", "del"))
         self.checkBox_Sym.setShortcut(_translate("annotation", "P"))
+        self.btn_reset.setShortcut(_translate("annotation", "R"))
 
     def on_tbtn_load_clicked(self):
         file_name = QFileDialog.getExistingDirectory()
@@ -134,6 +147,18 @@ class annatation_tool(QtWidgets.QMainWindow,Ui_annotation):
         if len(self.anno_list) == 0:
             QMessageBox.information(self, 'congratulations', 'annotation done!', QMessageBox.Ok)
             return
+        # print message
+        if '\\' in self.anno_list[self.index]:
+            scene_id, instance = self.anno_list[self.index].split('\\')
+        else:
+            scene_id, instance = self.anno_list[self.index].split('/')
+        lable = self.anno_list[self.index].split('_')[-2][5:]
+        if lable in self.ins_label.keys():
+            message = scene_id + '/' + instance + '\t' + self.ins_label[lable]
+        else:
+            message = scene_id + '/' + instance
+        self.label_label.setText(message)
+
         self.pc = np.load(os.path.join(self.loadroot, self.anno_list[self.index]))
         pmin, pmax = get_bbox(self.pc)
         center = (pmin + pmax) / 2
@@ -151,6 +176,13 @@ class annatation_tool(QtWidgets.QMainWindow,Ui_annotation):
         self.btn_nxt.setEnabled(True)
         self.checkBox_Sym.setEnabled(True)
         self.checkBox_del.setEnabled(True)
+        self.btn_reset.setEnabled(True)
+
+    def on_btn_reset_clicked(self):
+        self.phi = 0
+        self.theta = 0
+        self.init_viewer()
+
 
     def on_btn_right_clicked(self):
         self.phi += self.rotate_degree
@@ -185,7 +217,7 @@ class annatation_tool(QtWidgets.QMainWindow,Ui_annotation):
     def on_btn_next_clicked(self):
         if self.index >= len(self.anno_list):
             return
-        if not '/' in self.anno_list[self.index].split('\\'):
+        if '\\' in self.anno_list[self.index]:
             scene_id, instance = self.anno_list[self.index].split('\\')
         else:
             scene_id, instance = self.anno_list[self.index].split('/')
@@ -199,8 +231,18 @@ class annatation_tool(QtWidgets.QMainWindow,Ui_annotation):
             self.index = len(self.anno_list)
             QMessageBox.information(self, 'congratulations', 'annotation done!', QMessageBox.Ok)
             return
+
+        if '\\' in self.anno_list[self.index]:
+            scene_id, instance = self.anno_list[self.index].split('\\')
+        else:
+            scene_id, instance = self.anno_list[self.index].split('/')
+        lable = self.anno_list[self.index].split('_')[-2][5:]
+        if lable in self.ins_label.keys():
+            message = scene_id + '/' + instance + '\t' + self.ins_label[lable]
+        else:
+            message = scene_id + '/' + instance
+        self.label_label.setText(message)
         pc_path = os.path.join(self.loadroot, self.anno_list[self.index])
-        # print(pc_path)
         self.pc = np.load(pc_path)
         pmin, pmax = get_bbox(self.pc)
         center = (pmin + pmax) / 2
@@ -220,7 +262,18 @@ class annatation_tool(QtWidgets.QMainWindow,Ui_annotation):
         if self.index <= 0:
             return
         self.index -= 1
-        # print(self.index)
+        # print label message
+        if '\\' in self.anno_list[self.index]:
+            scene_id, instance = self.anno_list[self.index].split('\\')
+        else:
+            scene_id, instance = self.anno_list[self.index].split('/')
+        lable = self.anno_list[self.index].split('_')[-2][5:]
+        if lable in self.ins_label.keys():
+            message = scene_id + '/' + instance + '\t' + self.ins_label[lable]
+        else:
+            message = scene_id + '/' + instance
+        self.label_label.setText(message)
+
         self.pc = np.load(os.path.join(self.loadroot, self.anno_list[self.index]))
         pmin, pmax = get_bbox(self.pc)
         center = (pmin + pmax) / 2
@@ -269,6 +322,8 @@ class annatation_tool(QtWidgets.QMainWindow,Ui_annotation):
         if not os.path.exists(save_root):
             os.mkdir(save_root)
         save_name = os.path.join(save_root, instance.rstrip('.npy') + '_6d.npy')
+        self.phi = self.viewer.get('phi') * 180 / math.pi
+        self.theta = self.viewer.get('theta') * 180 / math.pi
         self.rt = np.dot(rotate_delta(self.phi, axis='z'), self.rt)
         self.rt = np.dot(rotate_delta(self.theta, axis='y'), self.rt)
         #print(self.theta, self.phi)
