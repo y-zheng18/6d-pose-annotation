@@ -38,3 +38,8 @@ Expected structure of 3d point cloud dataset:
     └─scenek
 ```
 
+## Start annotation
+
+```
+python call_life0.py
+```
